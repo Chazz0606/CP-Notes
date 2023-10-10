@@ -1,67 +1,218 @@
-#include<bits/stdc++.h>
-
+#include <bits/stdc++.h>
 using namespace std;
 
-vector<int> high_precision_add(vector<int> a, vector<int> b){ // NOLINT(misc-no-recursion)
-    if (a.size() < b.size())
-        return high_precision_add(b, a);
-    int sum = 0;
-    for (int i = 0; i < static_cast<int>(a.size()); i++){
-        sum += a[i];
-        if (i < b.size())
-            sum += b[i];
-        a[i] = sum % 10;
-        sum /= 10;
-        if (!sum && i >= b.size())
-            break;
+class HighPrecision {
+  private:
+    HighPrecision() {
     }
-    if (sum)
-        a.push_back(sum);
-    return a;
-}
 
-vector<int> unit_high_precision_multiply(vector<int>& a, int b){
-    vector<int> c = {};
-    for (int i = 0; i < static_cast<int>(a.size()); i++){
-        int prod_num = a[i] * b;
-        vector<int> product = {prod_num % 10};
-        if (prod_num / 10)
-            product.push_back(prod_num / 10);
-        product.insert(product.begin(), i, 0);
-        c = high_precision_add(c, product);
-    }
-    return c;
-}
+    vector<int> digits;
 
-vector<int> high_precision_multiply(vector<int> a, vector<int> b){ // NOLINT(misc-no-recursion)
-    if (a.size() < b.size())
-        return high_precision_multiply(b, a);
-    vector<int> c = {};
-    for (int i = 0; i < static_cast<int>(b.size()); i++){
-        vector<int> unit_product = unit_high_precision_multiply(a, b[i]);
-        unit_product.insert(unit_product.begin(), i, 0);
-        c = high_precision_add(c, unit_product);
+    size_t size() {
+        return digits.size();
     }
-    return c;
-}
+
+    void testZero() {
+        if (digits.empty()) digits.push_back(0);
+    }
+
+  public:
+    HighPrecision(string s) {
+        for (int i = s.size() - 1; i >= 0; i--)
+            digits.push_back(s[i] - '0');
+        testZero();
+    }
+
+    HighPrecision(vector<int> x) {
+        digits = x;
+    }
+
+    HighPrecision(long long x) {
+        while (x > 0) {
+            digits.push_back(x % 10);
+            x /= 10;
+        }
+        testZero();
+    }
+
+    HighPrecision copy() {
+        return HighPrecision(digits);
+    }
+
+    operator string() {
+        string res;
+        for (int i = size() - 1; i >= 0; i--) {
+            char x = digits[i] + '0';
+            res += x;
+        }
+        return res;
+    }
+
+    HighPrecision operator+(long long a) {
+        HighPrecision b;
+        for (int i = 0; i < static_cast<int>(size()); i++) {
+            a += digits[i];
+            b.digits.push_back(a % 10);
+            a /= 10;
+        }
+        for (; a > 0; a /= 10) b.digits.push_back(a % 10);
+        b.testZero();
+        return b;
+    }
+
+    HighPrecision operator+(HighPrecision a) {
+        if (a.size() > size()) return a + *this;
+        HighPrecision b;
+        int r = 0;
+        int thisSize = size();
+        int aSize = a.size();
+        for (int i = 0; i < aSize; i++) {
+            r += digits[i] + a.digits[i];
+            b.digits.push_back(r % 10);
+            r /= 10;
+        }
+        for (int i = aSize; i < thisSize; i++) {
+            r += digits[i];
+            b.digits.push_back(r % 10);
+            r /= 10;
+        }
+        for (; r > 0; r /= 10) b.digits.push_back(r % 10);
+        b.testZero();
+        return b;
+    }
+
+    HighPrecision operator*(long long a) {
+        if (*this == 0 || a == 0) return HighPrecision(0);
+        HighPrecision b;
+        int r = 0;
+        for (int i : digits) {
+            r += i * a;
+            b.digits.push_back(r % 10);
+            r /= 10;
+        }
+        for (; r > 0; r /= 10) b.digits.push_back(r % 10);
+        b.testZero();
+        return b;
+    }
+
+    HighPrecision operator*(HighPrecision a) {
+        if (*this == 0 || a == 0) return HighPrecision(0);
+        HighPrecision b;
+        int thisSize = size();
+        int aSize = a.size();
+        for (int i = 0; i < thisSize; i++) {
+            int r = 0;
+            for (int j = 0; j < aSize; j++) {
+                if (i + j < b.size()) {
+                    r += b.digits[i + j] + digits[i] * a.digits[j];
+                    b.digits[i + j] = r % 10;
+                } else {
+                    r += digits[i] * a.digits[j];
+                    b.digits.push_back(r % 10);
+                }
+                r /= 10;
+            }
+            for (int k = aSize; r > 0; r /= 10, k++) {
+                if (i + k < b.size()) b.digits[i + k] = r % 10;
+                else b.digits.push_back(r % 10);
+            }
+        }
+        b.testZero();
+        return b;
+    }
+
+    bool operator>(HighPrecision a) {
+        if (size() > a.size()) {
+            return true;
+        } else if (size() < a.size()) {
+            return false;
+        } else {
+            for (int i = size() - 1; i >= 0; i--) {
+                if (digits[i] > a.digits[i])
+                    return true;
+                else if (digits[i] < a.digits[i])
+                    return false;
+            }
+            return false;
+        }
+    }
+
+    bool operator<(HighPrecision a) {
+        if (size() < a.size()) {
+            return true;
+        } else if (size() > a.size()) {
+            return false;
+        } else {
+            for (int i = size() - 1; i >= 0; i--) {
+                if (digits[i] < a.digits[i])
+                    return true;
+                else if (digits[i] > a.digits[i])
+                    return false;
+            }
+            return false;
+        }
+    }
+
+    bool operator==(HighPrecision a) {
+        if (size() == a.size()) {
+            for (int i = size() - 1; i >= 0; i--) {
+                if (digits[i] != a.digits[i])
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool operator>=(HighPrecision a) {
+        if (size() > a.size()) {
+            return true;
+        } else if (size() < a.size()) {
+            return false;
+        } else {
+            for (int i = size() - 1; i >= 0; i--) {
+                if (digits[i] > a.digits[i])
+                    return true;
+                else if (digits[i] < a.digits[i])
+                    return false;
+            }
+            return true;
+        }
+    }
+
+    bool operator<=(HighPrecision a) {
+        if (size() < a.size()) {
+            return true;
+        } else if (size() > a.size()) {
+            return false;
+        } else {
+            for (int i = size() - 1; i >= 0; i--) {
+                if (digits[i] < a.digits[i])
+                    return true;
+                else if (digits[i] > a.digits[i])
+                    return false;
+            }
+            return true;
+        }
+    }
+
+    friend ostream &operator<<(ostream &o, HighPrecision a) {
+        o << (string) a;
+        return o;
+    }
+
+    friend istream &operator>>(istream &i, HighPrecision &a) {
+        string s;
+        i >> s;
+        a = HighPrecision(s);
+        return i;
+    }
+};
 
 int main() {
-    string str_a; string str_b;
-    cin >> str_a >> str_b;
-
-    vector<int> a = {};
-    vector<int> b = {};
-    for (int i = static_cast<int>(str_a.length())-1; i >= 0; i--)
-        a.push_back(str_a[i] - '0');
-    for (int i = static_cast<int>(str_b.length())-1; i >= 0; i--)
-        b.push_back(str_b[i] - '0');
-
-    vector<int> c = high_precision_multiply(a, b);
-    string str_c;
-    for (int i = static_cast<int>(c.size())-1; i >= 0; i--)
-        str_c += to_string(c[i]);
-
-    cout << str_c << endl;
+    HighPrecision a = 0, b = 0;
+    cin >> a >> b;
+    cout << (a * b);
 
     return 0;
 }

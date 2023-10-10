@@ -5,6 +5,9 @@ using namespace std;
 
 class HighPrecision {
   private:
+    HighPrecision() {
+    }
+
     vector<int> digits;
 
     size_t size() {
@@ -15,21 +18,7 @@ class HighPrecision {
         if (digits.empty()) digits.push_back(0);
     }
 
-    void empty() {
-        digits = {};
-    }
-
-    HighPrecision emptyHP() {
-        HighPrecision a;
-        a.empty();
-        return a;
-    }
-
   public:
-    HighPrecision() {
-        digits = {0};
-    }
-
     HighPrecision(string s) {
         for (int i = s.size() - 1; i >= 0; i--)
             digits.push_back(s[i] - '0');
@@ -62,7 +51,7 @@ class HighPrecision {
     }
 
     HighPrecision operator+(long long a) {
-        HighPrecision b = emptyHP();
+        HighPrecision b;
         for (int i = 0; i < static_cast<int>(size()); i++) {
             a += digits[i];
             b.digits.push_back(a % 10);
@@ -75,7 +64,7 @@ class HighPrecision {
 
     HighPrecision operator+(HighPrecision a) {
         if (a.size() > size()) return a + *this;
-        HighPrecision b = emptyHP();
+        HighPrecision b;
         int r = 0;
         int thisSize = size();
         int aSize = a.size();
@@ -96,7 +85,7 @@ class HighPrecision {
 
     HighPrecision operator*(long long a) {
         if (*this == 0 || a == 0) return HighPrecision(0);
-        HighPrecision b = emptyHP();
+        HighPrecision b;
         int r = 0;
         for (int i : digits) {
             r += i * a;
@@ -110,7 +99,7 @@ class HighPrecision {
 
     HighPrecision operator*(HighPrecision a) {
         if (*this == 0 || a == 0) return HighPrecision(0);
-        HighPrecision b = emptyHP();
+        HighPrecision b;
         int thisSize = size();
         int aSize = a.size();
         for (int i = 0; i < thisSize; i++) {
@@ -236,36 +225,25 @@ class HighPrecision {
         a = HighPrecision(s);
         return i;
     }
-
-    friend HighPrecision max(HighPrecision a, HighPrecision b) {
-        return (a > b) ? a : b;
-    }
-
-    friend HighPrecision min(HighPrecision a, HighPrecision b) {
-        return (a < b) ? a : b;
-    }
 };
 
 int main() {
-    int n, k;
-    cin >> n >> k;
-    cin.get();
-    string nums = {};
-    getline(cin, nums);
-    HighPrecision dp[42][9] = {};
-
-    for (int i = 0; i < n; i++) {
-        dp[i][0] = nums.substr(0, i + 1);
-        for (int j = 1; j <= k; j++) {
-            HighPrecision maxn = 0;
-            for (int h = j - 1; h < i; h++) {
-                maxn = max(maxn, dp[h][j - 1] * (HighPrecision) nums.substr(h + 1, i - h));
-            }
-            dp[i][j] = maxn;
-        }
+    int a;
+    cin >> a;
+    HighPrecision res = 1;
+    int x = (-1 + sqrt(8 * a + 9)) / 2;
+    int d = a - (x + 2) * (x - 1) / 2;
+    x += 1;
+    for (int i = 2; i < x - d; i++) {
+        res *= i;
+        cout << i << " ";
     }
-
-    cout << dp[n - 1][k] << endl;
+    for (int i = x - d + 1; i <= x; i++) {
+        res *= i;
+        cout << i << " ";
+    }
+    cout << endl
+         << res << endl;
 
     return 0;
 }

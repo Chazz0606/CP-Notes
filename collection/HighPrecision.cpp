@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define ll long long
-#define N 100005
 
 class HighPrecision {
   private:
@@ -15,13 +13,9 @@ class HighPrecision {
         if (digits.empty()) digits.push_back(0);
     }
 
-    void empty() {
-        digits = {};
-    }
-
     HighPrecision emptyHP() {
         HighPrecision a;
-        a.empty();
+        a.digits = {};
         return a;
     }
 
@@ -245,27 +239,3 @@ class HighPrecision {
         return (a < b) ? a : b;
     }
 };
-
-int main() {
-    int n, k;
-    cin >> n >> k;
-    cin.get();
-    string nums = {};
-    getline(cin, nums);
-    HighPrecision dp[42][9] = {};
-
-    for (int i = 0; i < n; i++) {
-        dp[i][0] = nums.substr(0, i + 1);
-        for (int j = 1; j <= k; j++) {
-            HighPrecision maxn = 0;
-            for (int h = j - 1; h < i; h++) {
-                maxn = max(maxn, dp[h][j - 1] * (HighPrecision) nums.substr(h + 1, i - h));
-            }
-            dp[i][j] = maxn;
-        }
-    }
-
-    cout << dp[n - 1][k] << endl;
-
-    return 0;
-}
