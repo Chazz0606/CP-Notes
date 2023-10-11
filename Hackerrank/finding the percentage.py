@@ -1,6 +1,6 @@
 import math
 
-fin=open("finding the percentage input.txt","r")
+fin=open("finding_the_percentage_input.txt","r")
 stdin=fin.read()
 fin.close()
 

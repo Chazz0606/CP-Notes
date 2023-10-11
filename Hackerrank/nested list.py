@@ -1,4 +1,4 @@
-fin=open("nested list input.txt","r")
+fin=open("nested_list_input.txt","r")
 stdin=fin.read()
 fin.close()
 stdin=stdin.split("\n")
