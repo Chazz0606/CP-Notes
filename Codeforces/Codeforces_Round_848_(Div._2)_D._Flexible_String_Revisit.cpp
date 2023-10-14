@@ -5,6 +5,7 @@ using namespace std;
 #define MOD 998244353
 
 char a[N];
+ll f[N];
 
 ll quickModPow(ll a, ll n) {
     ll ans = 1;
@@ -23,36 +24,28 @@ ll fractionMod(ll p, ll q) {
 int main() {
     int t;
     cin >> t;
-    for (int i = 0; i < t; i++) {
+    for (int k = 0; k < t; k++) {
         int n;
         cin >> n;
-        for (int j = 0; j < n; j++) {
-            // char temp = ' ';
-            // cin >> temp;
-            // a[j] = temp-'0';
-            cin >> a[j];
+
+        for (int i = 0; i < n; i++) {
+            cin >> a[i];
         }
 
-        int b = 0;
-        for (int j = 0; j < n; j++) {
-            char temp = ' ';
-            cin >> temp;
-            b += a[j] != temp;
+        int s = 0;
+        char b;
+        for (int i = 0; i < n; i++) {
+            cin >> b;
+            s += a[i] != b;
         }
-        // cerr << b << "/" << n << endl;
 
-        vector<ll> f(n + 5, 0);
         f[n] = 1;
-        for (int j = n - 1; j > 0; j--) {
-            // ll pq = ;
-            // cerr << 1 + (pq * f[j + 1]) % MOD << " " << (1 - pq) % MOD << endl;
-            f[j] = fractionMod(1 + (fractionMod(n - j, n) * f[j + 1]) % MOD, fractionMod(j, n));
+        for (int i = n - 1; i > 0; i--) {
+            f[i] = fractionMod(n + ((n - i) * f[i + 1]) % MOD, i);
         }
-        // cerr << b << "/" << n << endl;
-        // for (int j = 0; j <= n; j++) cerr << f[j] << " ";
-        // cerr << endl;
-        for (int j = 1; j <= b; j++) f[j] = (f[j] + f[j - 1]) % MOD;
-        cout << f[b] << endl;
+
+        for (int i = 1; i <= s; i++) f[i] = (f[i] + f[i - 1]) % MOD;
+        cout << f[s] << endl;
     }
 
     return 0;
